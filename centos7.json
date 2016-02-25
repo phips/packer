@@ -1,0 +1,44 @@
+{
+  "variables": {
+    "buildtype": "centos7"
+  },
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "sudo -E -S bash '{{.Path}}'",
+      "scripts": [
+        "scripts/vmwaretools.sh",
+        "scripts/epel.sh"
+      ]
+    }
+  ],
+  "builders": [{
+    "type": "vmware-iso",
+    "iso_url": "CentOS-7-x86_64-DVD-1503-01.iso",
+    "iso_checksum": "99e450fb1b22d2e528757653fcbf5fdc",
+    "iso_checksum_type": "md5",
+    "guest_os_type": "linux",
+    "ssh_username": "vagrant",
+    "ssh_key_path": "keys/insecure_private_key",
+    "ssh_wait_timeout": "15m",
+    "shutdown_command": "sudo shutdown -P now",
+    "disk_size": "20000",
+    "disk_type_id": "0",
+    "http_directory": "http",
+    "tools_upload_flavor": "linux",
+    "vmx_data": {
+        "memsize": "4096"
+    },
+    "boot_wait": "3s",
+    "boot_command": [
+      "I<tab><wait>",
+      "vmlinuz noapic ",
+      "initrd=initrd.img ",
+      "ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/7.ks<enter>"
+    ]
+  }],
+  "post-processors": [{
+    "type": "vagrant",
+    "output": "{{.BuildName}}_{{.Provider}}_{{isotime \"02-Jan-06\"}}.box"
+  }]
+}
